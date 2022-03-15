@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   pipex.c                                            :+:      :+:    :+:   */
+/*   pipex_bonus.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: pvillena <pvillena@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/03 18:17:48 by pvillena          #+#    #+#             */
-/*   Updated: 2022/03/15 14:07:36 by pvillena         ###   ########.fr       */
+/*   Updated: 2022/03/15 14:10:39 by pvillena         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,6 +61,34 @@ void	ft_first_cmd(char *file, int pfd[2], char ***cmds, char **envp)
 	}
 }
 
+int	ft_cmd_exec(char ***cmds, int cmd_nbr, char **envp)
+{
+	int		fd[2];
+	pid_t	pid;
+
+	if (pipe(fd) == -1)
+		ft_free_error(cmds);
+	pid = fork();
+	if (pid == -1)
+		ft_free_error(cmds);
+	else if (pid == 0)
+	{
+		close(fd[0]);
+		dup2(fd[1], STDOUT_FILENO);
+		close(fd[1]);
+		if (execve(get_path(envp, cmds[cmd_nbr][0]), cmds[cmd_nbr], envp))
+		{
+			write(2, "command not found\n", 18);
+			free_machine(cmds);
+			exit(127);
+		}
+	}
+	dup2(fd[0], STDIN_FILENO);
+	close(fd[0]);
+	close(fd[1]);
+	return (cmd_nbr + 1);
+}
+
 int	ft_lst_cmd(char *file, char ***cmds, int cmd_nbr, char **envp)
 {
 	int		fd;
@@ -71,7 +99,10 @@ int	ft_lst_cmd(char *file, char ***cmds, int cmd_nbr, char **envp)
 		ft_free_error(cmds);
 	if (pid == 0)
 	{
-		fd = open(file, O_CREAT | O_RDWR | O_TRUNC, 0644);
+		if (access("here_doc", F_OK) == 0)
+			fd = file_append(file);
+		else
+			fd = open(file, O_CREAT | O_RDWR | O_TRUNC, 0644);
 		if (fd < 0)
 			exit(1);
 		dup2(fd, STDOUT_FILENO);
@@ -90,10 +121,9 @@ int	pipex(char *file1, char *file2, char ***cmds, char **envp)
 {
 	int		pfd[2];
 	int		status;
-	pid_t	pid;
 	int		cmd_nbr;
+	pid_t	pid;
 
-	cmd_nbr = 1;
 	if (pipe(pfd) == -1)
 		ft_free_error(cmds);
 	pid = fork();
@@ -104,6 +134,9 @@ int	pipex(char *file1, char *file2, char ***cmds, char **envp)
 	dup2(pfd[0], STDIN_FILENO);
 	close(pfd[0]);
 	close(pfd[1]);
+	cmd_nbr = 1;
+	while (cmds[cmd_nbr] && cmds[cmd_nbr + 1])
+		cmd_nbr = ft_cmd_exec(cmds, cmd_nbr, envp);
 	pid = ft_lst_cmd(file2, cmds, cmd_nbr, envp);
 	close(STDIN_FILENO);
 	status = get_status(pid, cmd_nbr);
