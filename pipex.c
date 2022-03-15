@@ -6,7 +6,7 @@
 /*   By: pvillena <pvillena@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/03 18:17:48 by pvillena          #+#    #+#             */
-/*   Updated: 2022/03/14 19:29:20 by pvillena         ###   ########.fr       */
+/*   Updated: 2022/03/15 12:36:39 by pvillena         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,8 +99,8 @@ int	ft_lst_cmd(char *file, char ***cmds, int cmd_nbr, char **envp)
 		ft_free_error(cmds);
 	if (pid == 0)
 	{
-		if (ft_strncmp(file, "here_doc", 10) == 0)
-			fd = open(file, O_CREAT | O_RDWR);
+		if (access("here_doc", F_OK) == 0)
+			fd = open(file, O_CREAT | O_RDWR | O_APPEND);
 		else
 			fd = open(file, O_CREAT | O_RDWR | O_TRUNC, 0644);
 		if (fd < 0)
