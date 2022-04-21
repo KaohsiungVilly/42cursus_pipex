@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   pipex_utils.c                                      :+:      :+:    :+:   */
+/*   pipex_utils_bonus.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: pvillena <pvillena@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/03 18:13:05 by pvillena          #+#    #+#             */
-/*   Updated: 2022/03/14 14:54:05 by pvillena         ###   ########.fr       */
+/*   Updated: 2022/03/15 14:10:19 by pvillena         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,4 +61,15 @@ char	*ft_substr(char const *s, unsigned int start, size_t len)
 		*substr++ = *(s++ + start);
 	*substr = 0;
 	return (p);
+}
+
+int	file_append(char *file)
+{
+	int	fd;
+
+	if (access(file, F_OK))
+		fd = open(file, O_CREAT | O_RDWR | O_APPEND);
+	else
+		fd = open(file, O_CREAT | O_RDWR, 0644);
+	return (fd);
 }
