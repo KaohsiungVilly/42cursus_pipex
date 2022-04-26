@@ -18,6 +18,8 @@ char	*get_path(char **envp, char *cmd1)
 	char	*check_path;
 	int		i;
 
+	if (!*cmd1 || !cmd1)
+		exit(1);
 	while (ft_strncmp(*envp, "PATH=", 5) != 0)
 		envp++;
 	i = -1;

@@ -64,7 +64,7 @@ int	main(int argc, char *argv[], char *envp[])
 	char	***cmds;
 	int		status;
 
-	if (!envp || !*envp)
+	if (!envp)
 		exit(1);
 	else if (argc < 5)
 		return (1);
